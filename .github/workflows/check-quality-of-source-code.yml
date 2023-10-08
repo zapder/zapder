@@ -3,9 +3,9 @@ run-name: ${{ github.actor }} is run check quality of source code. 🚀
 on:
   push:
     branches:
-      - "*"
-      - "!main"
-      - "!prod"
+      - '**'
+      - '!main'
+      - '!prod'
 jobs:
   quality-check:
     runs-on: ubuntu-latest
