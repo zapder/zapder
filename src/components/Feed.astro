@@ -1,0 +1,36 @@
+---
+
+---
+
+<feed-box></feed-box>
+
+<script>
+  import { LitElement, html } from 'lit';
+  import { customElement, property } from 'lit/decorators.js';
+  import { SimplePool, type Event } from 'nostr-tools';
+
+  import { defaultRelays } from '../config';
+
+  @customElement('feed-box')
+  class feedElement extends LitElement {
+    createRenderRoot() {
+      return this; // turn off shadow dom to access external styles
+    }
+
+    @property()
+    private events: Event[] = [];
+
+    constructor() {
+      super();
+
+      (async () => {
+        const pool = new SimplePool();
+        this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 10 }]);
+      })();
+    }
+
+    render() {
+      return html` ${this.events.map((it) => html`<div>- ${it.content}</div>`)} `;
+    }
+  }
+</script>

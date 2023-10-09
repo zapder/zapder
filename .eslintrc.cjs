@@ -2,6 +2,8 @@ module.exports = {
   // ...
   extends: [
     // ...
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
     "plugin:astro/recommended",
   ],
   // ...
@@ -23,6 +25,14 @@ module.exports = {
         'no-console': 'warn',
       },
     },
+    {
+      files: ['**/*.astro/*.js', '*.astro/*.js', '**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off',
+        'no-console': 'warn',
+        'no-unused-vars': 'off',
+      }
+    }
     // ...
   ],
 }

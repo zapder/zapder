@@ -13,11 +13,17 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/lit": "^3.0.1",
+    "@webcomponents/template-shadowroot": "^0.2.1",
     "astro": "^3.2.3",
-    "flowbite": "^1.8.1"
+    "flowbite": "^1.8.1",
+    "lit": "^2.8.0",
+    "nostr-tools": "^1.16.0",
+    "websocket-polyfill": "^0.0.3"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "astro": "^3.2.3",
     "eslint": "^8.51.0",
