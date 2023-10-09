@@ -1,8 +1,11 @@
 {
   "name": "zapder",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
+    "lint": "eslint --ext .js,.astro,.ts src",
+    "prettier:check": "prettier -c ./src/**/*.*",
+    "prettier:write": "prettier -w ./src/**/*.*",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
@@ -10,6 +13,23 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^3.2.3"
+    "@astrojs/lit": "^3.0.1",
+    "@webcomponents/template-shadowroot": "^0.2.1",
+    "astro": "^3.2.3",
+    "flowbite": "^1.8.1",
+    "lit": "^2.8.0",
+    "nostr-tools": "^1.16.0",
+    "websocket-polyfill": "^0.0.3"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "astro": "^3.2.3",
+    "eslint": "^8.51.0",
+    "eslint-plugin-astro": "^0.29.1",
+    "prettier": "^3.0.3",
+    "prettier-plugin-astro": "^0.12.0",
+    "tailwindcss": "^3.3.3"
   }
 }
