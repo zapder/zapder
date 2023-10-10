@@ -1,15 +1,20 @@
----
-
----
-
 <feed-box></feed-box>
 
 <script>
   import { LitElement, html } from 'lit';
-  import { customElement, property } from 'lit/decorators.js';
-  import { SimplePool, type Event } from 'nostr-tools';
-
+  import { customElement, property, state } from 'lit/decorators.js';
+  import { SimplePool, type Event, parseReferences } from 'nostr-tools';
   import { defaultRelays } from '../config';
+
+  interface Profile {
+    name?: string;
+    display_name?: string;
+    picture?: string;
+  }
+  interface FeedData {
+    content: string;
+    profile: Profile;
+  }
 
   @customElement('feed-box')
   class feedElement extends LitElement {
@@ -20,17 +25,48 @@
     @property()
     private events: Event[] = [];
 
+    @state()
+    private feedData: FeedData[] = [];
+
     constructor() {
       super();
 
       (async () => {
         const pool = new SimplePool();
+
         this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 10 }]);
+
+        for (const it of this.events) {
+          const kind0Data = await pool.get(defaultRelays, { kinds: [0], authors: [it.pubkey] });
+          const profile = kind0Data && JSON.parse(kind0Data.content);
+          this.feedData = [
+            ...this.feedData,
+            {
+              content: it.content,
+              profile,
+            },
+          ];
+        }
+
+        console.log(this.events);
+        console.log('feedData', this.feedData);
       })();
     }
 
     render() {
-      return html` ${this.events.map((it) => html`<div>- ${it.content}</div>`)} `;
+      return this.feedData.map(
+        (it) => html`
+          <div class="border-b px-4 py-2">
+            <div class="flex items-center space-x-4 pb-4">
+              <img class="w-10 h-10 rounded-full" src="${it.profile.picture}" alt="" />
+              <div class="font-medium dark:text-white">
+                <div>${it.profile.display_name || it.profile.name}</div>
+              </div>
+            </div>
+            <div class="">${it.content}</div>
+          </div>
+        `,
+      );
     }
   }
 </script>
