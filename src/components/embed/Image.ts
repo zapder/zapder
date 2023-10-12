@@ -5,7 +5,7 @@ const Image: Embed = {
   regex: /(https?:\/\/\S+?\.(?:png|jpg|jpeg|gif|svg|webp)(?:\?\S*?)?)/gi,
   component: (match: string): string => {
     return `
-        <img src=${match} />
+        <img class="mt-3" src=${match} />
       `;
   },
 };
