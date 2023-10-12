@@ -5,7 +5,7 @@ const Hashtag: Embed = {
   regex: /(?:\s|^)(#\w+)/g,
   component: (match: string): string => {
     return `
-        <span class="text-blue-600">${match}</span>
+        <span class="text-[#0066CC]">${match}</span>
       `;
   },
 };
