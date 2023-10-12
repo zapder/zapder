@@ -1,8 +1,9 @@
 import type Embed from './Embed';
 import Image from './Image';
 import Video from './Video';
+import Youtube from './Youtube';
 
-const ignoreRegexs = [Image, Video];
+const ignoreRegexs = [Image, Video, Youtube];
 
 const Url: Embed = {
   type: 'text',

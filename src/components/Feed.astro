@@ -3,7 +3,7 @@
 <script>
   import { LitElement, html } from 'lit';
   import { customElement, property, state } from 'lit/decorators.js';
-  import { SimplePool, type Event, parseReferences } from 'nostr-tools';
+  import { SimplePool, type Event, nip19 } from 'nostr-tools';
   import { defaultRelays } from '../config';
   import { unsafeHTML } from 'lit/directives/unsafe-html.js';
   import allEmbeds from './embed';
