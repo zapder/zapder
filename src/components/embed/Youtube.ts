@@ -8,6 +8,7 @@ const Youtube: Embed = {
 
     return `
       <iframe
+        style="width: 100%; aspect-ratio: 16 / 9;"
         width="650"
         height="400"
         src="https://www.youtube.com/embed/${videoID}"
