@@ -6,7 +6,7 @@
   import { SimplePool, type Event, nip19 } from 'nostr-tools';
   import { defaultRelays } from '../config';
   import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-  import allEmbeds from './embed';
+  import { replaceEmbed } from './embed';
 
   interface Profile {
     name?: string;
@@ -51,7 +51,7 @@
           this.feedData = [
             ...this.feedData,
             {
-              content: this.replaceEmbed(it.content),
+              content: replaceEmbed(it.content),
               profile,
             },
           ];
@@ -60,16 +60,6 @@
         console.log(this.events);
         console.log('feedData', this.feedData);
       })();
-    }
-
-    private replaceEmbed(content: string): string {
-      let resContent = content;
-
-      allEmbeds.forEach((embed) => {
-        resContent = resContent.replace(embed.regex, embed.component);
-      });
-
-      return resContent;
     }
 
     render() {
