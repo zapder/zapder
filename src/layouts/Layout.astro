@@ -26,6 +26,11 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
+    <a href="/" class="flex items-center ml-4 mt-2 sm:hidden">
+      <img src="/favicon.svg" class="h-6 mr-3 sm:h-7" alt="Flowbite Logo" />
+      <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Zapder</span>
+    </a>
+
     <button
       data-drawer-target="default-sidebar"
       data-drawer-toggle="default-sidebar"
