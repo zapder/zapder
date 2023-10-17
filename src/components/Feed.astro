@@ -7,12 +7,8 @@
   import { defaultRelays } from '../config';
   import { unsafeHTML } from 'lit/directives/unsafe-html.js';
   import { replaceEmbed } from './embed';
-
-  interface Profile {
-    name?: string;
-    display_name?: string;
-    picture?: string;
-  }
+  import type { Profile } from '../utils/nostr';
+  import Nostr from '../utils/nostr';
 
   interface Media {
     type: 'image' | 'video';
@@ -21,7 +17,7 @@
 
   interface FeedData {
     content: string;
-    profile: Profile;
+    profile?: Profile;
     medias?: Media[];
   }
 
@@ -46,8 +42,7 @@
         this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 10 }]);
 
         for (const it of this.events) {
-          const kind0Data = await pool.get(defaultRelays, { kinds: [0], authors: [it.pubkey] });
-          const profile = kind0Data && JSON.parse(kind0Data.content);
+          const profile = await Nostr.getProfile(it.pubkey);
           this.feedData = [
             ...this.feedData,
             {
