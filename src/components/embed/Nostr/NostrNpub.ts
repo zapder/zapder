@@ -1,7 +1,7 @@
 import type Embed from '../Embed';
 import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import Nastr from '../../../utils/nostr';
+import Nostr from '../../../utils/nostr';
 
 const NostrProfile: Embed = {
   type: 'text',
@@ -29,7 +29,7 @@ class ProfileName extends LitElement {
     super.connectedCallback();
 
     (async () => {
-      const profile = await Nastr.getProfile(this.npub);
+      const profile = await Nostr.getProfile(this.npub);
       this.profileName = profile ? `@${profile.display_name || profile.name}` : '';
     })();
   }

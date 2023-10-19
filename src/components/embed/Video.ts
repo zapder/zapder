@@ -5,7 +5,7 @@ const Video: Embed = {
   regex: /(https?:\/\/\S+?\.(?:mp4|webm|ogg|mov)(?:\?\S*)?)/gi,
   component: (match: string): string => {
     return `
-        <video controls autoplay>
+        <video controls>
           <source src="${match}" type="video/mp4" />
           Your browser does not support the video tag.
         </video>

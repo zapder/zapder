@@ -1,7 +1,8 @@
 import { SimplePool, nip19 } from 'nostr-tools';
 import { defaultRelays } from '../config';
+import { type Profile } from '../stores/profile.store';
 
-export default class Nastr {
+export default class Nostr {
   private static pool: SimplePool = new SimplePool();
 
   static getPool(): SimplePool {
@@ -25,10 +26,4 @@ export default class Nastr {
       return undefined;
     }
   }
-}
-
-export interface Profile {
-  name?: string;
-  display_name?: string;
-  picture?: string;
 }
