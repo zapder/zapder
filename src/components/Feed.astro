@@ -3,7 +3,7 @@
 <script>
   import { LitElement, html } from 'lit';
   import { customElement, property, state } from 'lit/decorators.js';
-  import { SimplePool, type Event, nip19 } from 'nostr-tools';
+  import { SimplePool, type Event } from 'nostr-tools';
   import { defaultRelays } from '../config';
   import { unsafeHTML } from 'lit/directives/unsafe-html.js';
   import { replaceEmbed } from './embed';
@@ -16,6 +16,7 @@
   }
 
   interface FeedData {
+    id: string;
     content: string;
     profile?: Profile;
     medias?: Media[];
@@ -30,71 +31,89 @@
     @property()
     private events: Event[] = [];
 
-    @state()
-    private feedData: FeedData[] = [];
+    @state() private isLoading: boolean = false;
+    @state() private feedData: FeedData[] = [];
 
     constructor() {
       super();
+    }
 
-      (async () => {
-        const pool = new SimplePool();
+    firstUpdated() {
+      const io = new IntersectionObserver(
+        async (entries) => {
+          if (entries[0].isIntersecting) {
+            this.isLoading = true;
 
-        this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 100 }]);
+            const pool = new SimplePool();
 
-        for (const it of this.events) {
-          const profile = await Nostr.getProfile(it.pubkey);
-          this.feedData = [
-            ...this.feedData,
-            {
-              content: replaceEmbed(it.content),
-              profile,
-            },
-          ];
-        }
+            this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 50 }]);
 
-        console.log(this.events);
-        console.log('feedData', this.feedData);
-      })();
+            for (const it of this.events) {
+              const profile = await Nostr.getProfile(it.pubkey);
+
+              if (this.feedData.find((feed) => feed.id == it.id)) continue;
+
+              this.feedData = [
+                ...this.feedData,
+                {
+                  id: it.id,
+                  content: replaceEmbed(it.content),
+                  profile,
+                },
+              ];
+            }
+
+            this.isLoading = false;
+          }
+        },
+        { rootMargin: '250px', threshold: 0 },
+      );
+
+      const endArea = this.renderRoot.querySelector('#end-area');
+
+      io.observe(endArea as Element);
     }
 
     render() {
-      return this.feedData.length != 0
-        ? this.feedData.map(
-            (it) => html`
-              <div class="border-b px-4 py-2">
-                <div class="flex items-start space-x-4 pb-4">
-                  <img class="w-10 h-10 rounded-full" src="${it.profile?.picture || '/svg/avatar.svg'}" alt="" />
-                  <div class="flex-col break-words overflow-hidden">
-                    <div class="mb-1 font-medium dark:text-white">${it.profile?.display_name || it.profile?.name}</div>
-                    <div>${unsafeHTML(it.content)}</div>
-                  </div>
+      return html`
+        ${this.feedData.map(
+          (it, index) => html`
+            <div id="${index == this.feedData.length - 3 ? 'end-area' : ''}" class="border-b px-4 py-2">
+              <div class="flex items-start space-x-4 pb-4">
+                <img class="w-10 h-10 rounded-full" src="${it.profile?.picture || '/svg/avatar.svg'}" alt="" />
+                <div class="flex-col break-words overflow-hidden">
+                  <div class="mb-1 font-medium dark:text-white">${it.profile?.display_name || it.profile?.name}</div>
+                  <div>${unsafeHTML(it.content)}</div>
                 </div>
               </div>
-            `,
-          )
-        : html`
-            <div class="text-center">
-              <div role="status">
-                <svg
-                  aria-hidden="true"
-                  class="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
-                </svg>
-                <span class="sr-only">Loading...</span>
-              </div>
             </div>
-          `;
+          `,
+        )}
+
+        <div id="end-area" />
+
+        <div class="text-center my-4" ?disabled=${this.isLoading}>
+          <div role="status">
+            <svg
+              aria-hidden="true"
+              class="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      `;
     }
   }
 </script>
