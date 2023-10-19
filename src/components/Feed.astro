@@ -41,7 +41,7 @@
     firstUpdated() {
       const io = new IntersectionObserver(
         async (entries) => {
-          if (entries[0].isIntersecting) {
+          if (entries[0].isIntersecting && this.isLoading == false) {
             this.isLoading = true;
 
             const pool = new SimplePool();
