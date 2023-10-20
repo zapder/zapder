@@ -11,8 +11,9 @@ import Layout from '../layouts/Layout.astro';
 <script>
   import { LitElement, html } from 'lit';
   import { customElement, state } from 'lit/decorators.js';
-  import { login } from '../stores/profile.store';
+  import { login } from '../stores/login.store';
   import { type Ref, ref, createRef } from 'lit/directives/ref.js';
+  import { getProfile } from '../stores/profile.store';
 
   @customElement('login-box')
   class LoginBox extends LitElement {
@@ -37,8 +38,8 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
-      const profile = await login(key);
-      if (!profile) {
+      const loginSuccess = await login(key);
+      if (!loginSuccess) {
         this.isLoading = false;
         return;
       }

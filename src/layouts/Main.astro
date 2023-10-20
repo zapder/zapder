@@ -63,7 +63,8 @@ const { title } = Astro.props;
   import { LitElement, html } from 'lit';
   import { customElement, property, state } from 'lit/decorators.js';
   import type { Profile } from '../stores/profile.store';
-  import { $profile, checkLogin, logout } from '../stores/profile.store';
+  import { getProfile } from '../stores/profile.store';
+  import { logout, checkLogin } from '../stores/login.store';
 
   @customElement('profile-box')
   class ProfileBox extends LitElement {
@@ -84,7 +85,9 @@ const { title } = Astro.props;
       super.connectedCallback();
 
       (async () => {
-        this.profile = await checkLogin();
+        if (checkLogin()) {
+          this.profile = await getProfile();
+        }
       })();
     }
 
