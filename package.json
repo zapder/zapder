@@ -19,12 +19,14 @@
     "astro": "^3.2.3",
     "flowbite": "^1.8.1",
     "lit": "^3.0.0",
+    "luxon": "^3.4.3",
     "nanostores": "^0.9.4",
     "nostr-tools": "^1.16.0",
     "websocket-polyfill": "^0.0.3"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^5.0.1",
+    "@types/luxon": "^3.3.3",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "astro": "^3.2.3",

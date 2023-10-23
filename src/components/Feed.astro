@@ -3,12 +3,12 @@
 <script>
   import { LitElement, html } from 'lit';
   import { customElement, property, state } from 'lit/decorators.js';
-  import { SimplePool, type Event } from 'nostr-tools';
-  import { defaultRelays } from '../config';
+  import { type Event } from 'nostr-tools';
   import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-  import { replaceEmbed } from './embed';
-  import Nostr from '../utils/nostr';
   import type { Profile } from '../stores/profile.store';
+  import { ExporeFeedEventType } from '../stores/feed/exporeFeed.store';
+  import { startFetchAndSubscriptExporeFeed, updateNewFeedToExporeFeed } from '../stores/feed/exporeFeed.store';
+  import './NewComingFeed.ts';
 
   interface Media {
     type: 'image' | 'video';
@@ -23,59 +23,45 @@
   }
 
   @customElement('feed-box')
-  class feedElement extends LitElement {
+  class FeedElement extends LitElement {
     createRenderRoot() {
       return this; // turn off shadow dom to access external styles
     }
 
-    @property()
-    private events: Event[] = [];
-
     @state() private isLoading: boolean = false;
     @state() private feedData: FeedData[] = [];
+    @state() private newFeedData: FeedData[] = [];
 
     constructor() {
       super();
     }
 
     firstUpdated() {
-      const io = new IntersectionObserver(
-        async (entries) => {
-          if (entries[0].isIntersecting && this.isLoading == false) {
-            this.isLoading = true;
+      (async () => {
+        startFetchAndSubscriptExporeFeed([
+          {
+            type: ExporeFeedEventType.ExporeFeedUpdate,
+            callback: (feed: FeedData[]) => {
+              this.feedData = feed;
+            },
+          },
+          {
+            type: ExporeFeedEventType.NewExporeFeedUpdate,
+            callback: (feed: FeedData[]) => {
+              this.newFeedData = feed;
+            },
+          },
+        ]);
+      })();
+    }
 
-            const pool = new SimplePool();
-
-            this.events = await pool.list(defaultRelays, [{ kinds: [1], limit: 50 }]);
-
-            for (const it of this.events) {
-              const profile = await Nostr.getProfile(it.pubkey);
-
-              if (this.feedData.find((feed) => feed.id == it.id)) continue;
-
-              this.feedData = [
-                ...this.feedData,
-                {
-                  id: it.id,
-                  content: replaceEmbed(it.content),
-                  profile,
-                },
-              ];
-            }
-
-            this.isLoading = false;
-          }
-        },
-        { rootMargin: '250px', threshold: 0 },
-      );
-
-      const endArea = this.renderRoot.querySelector('#end-area');
-
-      io.observe(endArea as Element);
+    updateNewFeed() {
+      updateNewFeedToExporeFeed();
     }
 
     render() {
       return html`
+        <new-coming-feed .newFeedData="${this.newFeedData}" @click=${this.updateNewFeed}></new-coming-feed>
         ${this.feedData.map(
           (it, index) => html`
             <div id="${index == this.feedData.length - 3 ? 'end-area' : ''}" class="border-b px-4 py-2">
